@@ -1,51 +1,108 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8">
   <title>Métronome Guitare - Strumming Pattern</title>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 20px; background-color: #f9f9f9; color: #333; }
-    .control-group { margin: 15px 0; }
-    input, select { padding: 8px; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; }
-    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+
+    .control-group {
+      margin: 15px 0;
+    }
+
+    input,
+    select {
+      padding: 8px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
     /* Conteneur des blocs du pattern */
     #patternContainer {
-      display: flex; justify-content: center; gap: 10px; margin: 30px auto; max-width: 90%; flex-wrap: wrap;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 30px auto;
+      max-width: 90%;
+      flex-wrap: wrap;
     }
-    
+
     /* Style de base d'un bloc de temps */
     .strum-block {
-      width: 60px; height: 80px; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; border-radius: 8px;
-      font-weight: bold; font-size: 1.2rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      border: 3px solid transparent; background-color: #e0e0e0; color: #fff;
+      width: 60px;
+      height: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      border: 3px solid transparent;
+      background-color: #e0e0e0;
+      color: #fff;
       transition: transform 0.1s ease, border-color 0.1s ease;
     }
-    .strum-block .arrow { font-size: 1.5rem; margin-top: 5px; }
-    
+
+    .strum-block .arrow {
+      font-size: 2.5rem;
+      margin-top: 5px;
+    }
+
     /* Couleurs demandées selon le type de coup */
-    .strum-D { background-color: #2ecc71; } /* Vert */
-    .strum-U { background-color: #3498db; } /* Bleu */
-    .strum-x { background-color: #95a5a6; } /* Gris */
+    .strum-D {
+      background-color: #2ecc71;
+    }
+
+    /* Vert */
+    .strum-U {
+      background-color: #3498db;
+    }
+
+    /* Bleu */
+    .strum-x {
+      background-color: #95a5a6;
+    }
+
+    /* Gris */
 
     /* Style de surbrillance du temps actif */
     .strum-block.active {
       transform: scale(1.15);
-      border-color: #e74c3c; /* Contour rouge vif */
+      border-color: #e74c3c;
+      /* Contour rouge vif */
       box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
     }
-    
+
     #startStopBtn {
-      font-size: 1.3rem; padding: 12px 30px; background-color: #e74c3c;
-      color: white; border: none; border-radius: 5px; cursor: pointer;
+      font-size: 1.3rem;
+      padding: 12px 30px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
-    #startStopBtn:hover { background-color: #c0392b; }
+
+    #startStopBtn:hover {
+      background-color: #c0392b;
+    }
   </style>
 </head>
+
 <body>
 
   <h1>Métronome & Rythmique Guitare</h1>
-  
+
   <div class="control-group">
     <label for="tempo">Tempo (BPM) : </label>
     <input type="number" id="tempo" value="100" min="40" max="240" style="width: 80px;">
@@ -53,10 +110,12 @@
 
   <div class="control-group">
     <label for="patternInput">Pattern de grattage (D, U, x) : </label>
-    <input type="text" id="patternInput" value="DxDUDUDU" placeholder="Ex: DxDUDUDU" style="text-transform: uppercase; letter-spacing: 2px; width: 200px;">
-    <small style="display:block; margin-top:5px; color:#666;">Entrez vos coups à la suite : <strong>D</strong> (Bas), <strong>U</strong> (Haut), <strong>x</strong> (Bloqué/Muté)</small>
+    <input type="text" id="patternInput" value="DxDUDUDU" placeholder="Ex: DxDUDUDU"
+      style="text-transform: uppercase; letter-spacing: 2px; width: 200px;">
+    <small style="display:block; margin-top:5px; color:#666;">Entrez vos coups à la suite : <strong>D</strong> (Bas),
+      <strong>U</strong> (Haut), <strong>x</strong> (Bloqué/Muté)</small>
   </div>
-  
+
   <button id="startStopBtn">Démarrer</button>
 
   <!-- Grille visuelle générée dynamiquement -->
@@ -69,9 +128,9 @@
     let pattern = "DxDUDUDU";
     let currentStep = 0; // Index du pas actuel dans le pattern
 
-    let lookahead = 25.0; 
-    let scheduleAheadTime = 0.1; 
-    let nextNoteTime = 0.0; 
+    let lookahead = 25.0;
+    let scheduleAheadTime = 0.1;
+    let nextNoteTime = 0.0;
     let timerID = null;
 
     const tempoInput = document.getElementById('tempo');
@@ -83,7 +142,7 @@
     function drawPattern() {
       patternContainer.innerHTML = '';
       pattern = patternInput.value.toUpperCase().replace(/[^DUX]/g, ''); // Filtre uniquement D, U, x
-      
+
       if (pattern.length === 0) return;
 
       for (let i = 0; i < pattern.length; i++) {
@@ -94,9 +153,10 @@
 
         let symbol = char;
         let arrow = '';
-        if (char === 'D') { symbol = 'Down'; arrow = '↓'; }
-        if (char === 'U') { symbol = 'Up'; arrow = '↑'; }
-        if (char === 'X') { symbol = 'Etouffé'; arrow = '✕'; charClass = 'x' }
+        //if (char === 'D') { symbol = 'Down'; arrow = '↓'; }
+        if (char === 'D') {symbol = 'Down'; arrow = 'D';}
+        if (char === 'U') {symbol = 'Up'; arrow = 'U';}
+        if (char === 'X') {symbol = 'Etouffé'; arrow = '✕'; charClass = 'x'}
 
         block.innerHTML = `<div>${i + 1}</div><div class="arrow">${arrow}</div>`;
         patternContainer.appendChild(block);
@@ -112,7 +172,7 @@
       e.target.value = e.target.value.toUpperCase().replace(/[^DUX]/g, '');
       cursor -= (originalLength - e.target.value.length);
       e.target.setSelectionRange(cursor, cursor);
-      
+
       drawPattern();
     });
 
@@ -125,7 +185,7 @@
 
       if (isPlaying) {
         if (audioCtx.state === 'suspended') audioCtx.resume();
-        currentStep = 0; 
+        currentStep = 0;
         nextNoteTime = audioCtx.currentTime;
         timerID = setInterval(scheduler, lookahead);
         startStopBtn.textContent = 'Arrêter';
@@ -138,15 +198,18 @@
     });
 
     function nextStep() {
-      const secondsPerBeat = 60.0 / tempo; 
+      const secondsPerBeat = 60.0 / tempo;
       nextNoteTime += secondsPerBeat;
       // Avancer d'un pas et boucler sur la longueur du pattern saisi
       currentStep = (currentStep + 1) % pattern.length;
     }
 
-    function XscheduleNote(stepIndex, time) {
+    function scheduleNote(stepIndex, time) {
       if (pattern.length === 0) return;
       const type = pattern[stepIndex];
+
+      // Vérifier si c'est le tout dernier pas du pattern
+      const isLastStep = (stepIndex === pattern.length - 1);
 
       const osc = audioCtx.createOscillator();
       const envelope = audioCtx.createGain();
@@ -154,19 +217,24 @@
 
       // --- Modélisation audio selon le coup de guitare ---
       if (type === 'D') {
-        osc.frequency.setValueAtTime(150, time); // Coup vers le bas : Fréquence basse (Cordes graves)
+        osc.frequency.setValueAtTime(150, time); // Coup vers le bas (grave)
         envelope.gain.setValueAtTime(0.8, time);
-        envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.12); // Résonance moyenne
+        envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
       } else if (type === 'U') {
-        osc.frequency.setValueAtTime(400, time); // Coup vers le haut : Fréquence plus aiguë (Cordes fines)
-        envelope.gain.setValueAtTime(0.6, time);
-        envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.08); // Résonance plus courte
+        // S'il s'agit du DERNIER 'U' du pattern, on applique une fréquence de transition
+        if (isLastStep) {
+          osc.frequency.setValueAtTime(550, time); // Fréquence plus aiguë pour "annoncer" la boucle
+          envelope.gain.setValueAtTime(0.7, time);  // Un poil plus fort pour marquer la relance
+        } else {
+          osc.frequency.setValueAtTime(400, time); // Coup vers le haut standard
+          envelope.gain.setValueAtTime(0.6, time);
+        }
+        envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
       } else if (type === 'X') {
-        // Le "x" simule le blocage des cordes avec la paume (Palm Mute)
-        // On utilise une fréquence percussive transitoire très basse et ultra-courte
-        osc.frequency.setValueAtTime(80, time); 
+        //osc.frequency.setValueAtTime(80, time); // Palm Mute
+        osc.frequency.setValueAtTime(0, time); // Palm Mute
         envelope.gain.setValueAtTime(0.4, time);
-        envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.02); // Extinction quasi immédiate
+        envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
       }
 
       osc.connect(envelope);
@@ -188,57 +256,6 @@
       }, delay);
     }
 
-	    function scheduleNote(stepIndex, time) {
-  if (pattern.length === 0) return;
-  const type = pattern[stepIndex];
-
-  // Vérifier si c'est le tout dernier pas du pattern
-  const isLastStep = (stepIndex === pattern.length - 1);
-
-  const osc = audioCtx.createOscillator();
-  const envelope = audioCtx.createGain();
-  osc.type = 'sine';
-
-  // --- Modélisation audio selon le coup de guitare ---
-  if (type === 'D') {
-    osc.frequency.setValueAtTime(150, time); // Coup vers le bas (grave)
-    envelope.gain.setValueAtTime(0.8, time);
-    envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
-  } else if (type === 'U') {
-    // S'il s'agit du DERNIER 'U' du pattern, on applique une fréquence de transition
-    if (isLastStep) {
-      osc.frequency.setValueAtTime(550, time); // Fréquence plus aiguë pour "annoncer" la boucle
-      envelope.gain.setValueAtTime(0.7, time);  // Un poil plus fort pour marquer la relance
-    } else {
-      osc.frequency.setValueAtTime(400, time); // Coup vers le haut standard
-      envelope.gain.setValueAtTime(0.6, time);
-    }
-    envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
-  } else if (type === 'X') {
-    osc.frequency.setValueAtTime(80, time); // Palm Mute
-    envelope.gain.setValueAtTime(0.4, time);
-    envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
-  }
-
-  osc.connect(envelope);
-  envelope.connect(audioCtx.destination);
-  osc.start(time);
-  osc.stop(time + 0.15);
-
-  // --- Synchronisation visuelle stricte ---
-  const delay = (time - audioCtx.currentTime) * 1000;
-  setTimeout(() => {
-    if (!isPlaying) return;
-
-    // Supprimer l'ancienne surbrillance
-    document.querySelectorAll('.strum-block').forEach(b => b.classList.remove('active'));
-
-    // Allumer le bloc du temps actuel
-    const activeBlock = document.getElementById(`step-${stepIndex}`);
-    if (activeBlock) activeBlock.classList.add('active');
-  }, delay);
-}
-
 
     function scheduler() {
       while (nextNoteTime < audioCtx.currentTime + scheduleAheadTime) {
@@ -252,5 +269,5 @@
   </script>
 
 </body>
-</html>
 
+</html>
